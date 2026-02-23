@@ -1,15 +1,16 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import Login from "../pages/auth/Login";
-import SignUp from "../pages/auth/SignUp";
+import { Login } from "../pages/auth/Login";
+import { SignUp } from "../pages/auth/SignUp";
 
 import { UserLayout } from "../components/layout/UserLayout";
 
 import { Home } from "../pages/Home";
-import AuctionDetails from "../pages/user/AuctionDetails";
-import AuctionList from "../pages/user/AuctionList";
-import CreateAuction from "../pages/user/CreateAuction";
-import DashBoard from "../pages/user/DashBoard";
+import { AuctionDetails } from "../pages/user/AuctionDetails";
+import { AuctionList } from "../pages/user/AuctionList";
+import { CreateAuction } from "../pages/user/CreateAuction";
+import { DashBoard } from "../pages/user/DashBoard";
+import { Profile } from "../pages/user/Profile";
 
 import ProtectedRoute from "../routes/ProtectedRoute";
 
@@ -40,6 +41,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <CreateAuction />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         ),
       },
