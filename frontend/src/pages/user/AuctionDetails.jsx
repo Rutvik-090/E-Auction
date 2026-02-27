@@ -37,7 +37,7 @@ export const AuctionDetails = () => {
           <img
             src={auction.image}
             alt={auction.title}
-            className="w-full h-[400px] object-cover rounded-lg"
+            className="w-full h-100 object-cover rounded-lg"
           />
         </div>
 
