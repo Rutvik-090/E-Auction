@@ -52,3 +52,28 @@ export const getAllAuctions = async (req, res) => {
     });
   }
 };
+
+//--------------
+//Get one auction
+//--------------
+export const getSingleAuction = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.id).populate(
+      "seller",
+      "name email",
+    );
+
+    if (!auction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Auction not found" });
+    }
+
+    res.status(200).json({ success: true, auction });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
