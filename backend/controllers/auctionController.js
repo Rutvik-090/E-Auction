@@ -159,3 +159,15 @@ export const deleteAuction = async (req, res) => {
     });
   }
 };
+
+//-------------------
+//Auto end auction
+//-------------------
+export const checkAndEndAuctions = async () => {
+  const now = new Date();
+
+  await Auction.updateMany(
+    { endTime: { $lt: now }, status: "active" },
+    { status: "ended" },
+  );
+};
