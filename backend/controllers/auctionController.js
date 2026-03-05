@@ -77,3 +77,50 @@ export const getSingleAuction = async (req, res) => {
     });
   }
 };
+
+//-------------------
+//Update Auction (Seller only)
+//-------------------
+export const updateAuction = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.id);
+
+    if (!auction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Auction not found" });
+    }
+
+    //check ownership
+    if (auction.seller.toString !== req.params._id.toString()) {
+      return res
+        .status(500)
+        .json({ success: false, message: "You are not authorized" });
+    }
+
+    // Cannot update ended auction
+    if (auction.status === "ended") {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot update ended auction",
+      });
+    }
+
+    const updatedAuction = await Auction.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true },
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Auction updated successfully",
+      updatedAuction,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
