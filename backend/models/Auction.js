@@ -21,6 +21,11 @@ const auctionSchema = new mongoose.Schema(
       enum: ["active", "ended"],
       default: "active",
     },
+    winner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    finalPrice: { type: Number },
   },
   { timestamps: true },
 );
