@@ -8,9 +8,11 @@ import authRoutes from "./routes/authRoutes.js";
 import bidRoutes from "./routes/bidRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { initializeSocket } from "./socket/socket.js";
+import { startAuctionCron } from "./utils/auctionCron.js";
 
 dotenv.config();
 connectDB();
+startAuctionCron();
 
 // express app
 const app = express();
