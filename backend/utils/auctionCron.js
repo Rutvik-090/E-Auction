@@ -28,6 +28,13 @@ export const startAuctionCron = () => {
 
       await auction.save();
 
+      const io = global.io;
+
+      io.to(auction._id.toString()).emit("auctionEnded", {
+        winner: highestBid?.bidder?.name,
+        finalPrice: highestBid?.amount,
+      });
+
       console.log(`Auction ended: ${auction.title}`);
     }
   });
