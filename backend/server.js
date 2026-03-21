@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import http from "http";
 import connectDB from "./config/db.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import auctionRoutes from "./routes/auctionRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import bidRoutes from "./routes/bidRoutes.js";
@@ -39,6 +40,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/auctions", auctionRoutes);
 app.use("/api/bids", bidRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5001;
 
