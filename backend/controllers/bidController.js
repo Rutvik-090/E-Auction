@@ -55,9 +55,27 @@ export const placeBid = async (req, res) => {
     auction.currentBid = amount;
     await auction.save();
 
-    // Real-time broadcast
     const io = req.app.get("io");
 
+    // Notify previous bidder
+    if (
+      previousBid &&
+      previousBid.bidder._id.toString() !== req.user._id.toString()
+    ) {
+      const notification = await Notification.create({
+        user: previousBid.bidder._id,
+        auction: auctionId,
+        message: `You have been outbid on ${auction.title}`,
+      });
+
+      // Real-time notification
+      io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
+        message: notification.message,
+        auctionId,
+      });
+    }
+
+    // Broadcast new bid to auction room
     io.to(auctionId).emit("bidUpdated", {
       auctionId,
       amount,
