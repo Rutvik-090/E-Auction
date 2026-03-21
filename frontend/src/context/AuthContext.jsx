@@ -3,7 +3,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null,
+  );
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
@@ -14,12 +16,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData, tokenValue) => {
     localStorage.setItem("token", tokenValue);
+    localStorage.setItem("user", JSON.stringify(userData)); // ADD THIS
+
     setUser(userData);
     setToken(tokenValue);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user"); // ADD THIS
+
     setUser(null);
     setToken(null);
   };
