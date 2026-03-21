@@ -1,6 +1,8 @@
 import cron from "node-cron";
 import Auction from "../models/Auction.js";
 import Bid from "../models/Bid.js";
+import User from "../models/User.js";
+import { sendEmail } from "./sendEmail.js";
 
 export const startAuctionCron = () => {
   // Runs every minute
@@ -22,6 +24,19 @@ export const startAuctionCron = () => {
         auction.status = "ended";
         auction.winner = highestBid.bidder._id;
         auction.finalPrice = highestBid.amount;
+
+        const winnerUser = await User.findById(highestBid.bidder._id);
+
+        await sendEmail(
+          winnerUser.email,
+          "🎉 You won the auction!",
+          `
+      <h2>Congratulations 🎉</h2>
+      <p>You won the auction: <b>${auction.title}</b></p>
+      <p>Final Price: ₹${highestBid.amount}</p>
+      <p>Please complete your payment.</p>
+    `,
+        );
       } else {
         auction.status = "ended";
       }
