@@ -7,6 +7,13 @@ export const createAuction = async (req, res) => {
   try {
     const { title, description, startingBid, reservePrice, endTime } = req.body;
 
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+      });
+    }
+
     if (!title || !startingBid || !endTime) {
       return res.status(400).json({
         success: false,
@@ -20,6 +27,8 @@ export const createAuction = async (req, res) => {
       startingBid,
       reservePrice,
       endTime,
+      seller: req.user._id,
+      image: req.file.path, // Cloudinary URL
     });
 
     return res.status(201).json({

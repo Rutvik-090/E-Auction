@@ -26,6 +26,10 @@ const auctionSchema = new mongoose.Schema(
       ref: "User",
     },
     finalPrice: { type: Number },
+    image: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true },
 );
