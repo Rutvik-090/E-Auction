@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "../../api/axios";
+import API from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 
 export const SignUp = () => {
@@ -14,7 +14,7 @@ export const SignUp = () => {
     try {
       setError("");
 
-      const res = await axios.post("/auth/register", data);
+      const res = await API.post("/auth/register", data);
 
       login(res.data.user, res.data.token);
       navigate("/dashboard");
