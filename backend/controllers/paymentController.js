@@ -1,5 +1,7 @@
 import razorpay from "../config/razorpay.js";
 import Auction from "../models/Auction.js";
+import User from "../models/User.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -33,6 +35,18 @@ export const createOrder = async (req, res) => {
     };
 
     const order = await razorpay.orders.create(options);
+
+    const user = await User.findById(req.user._id);
+
+    await sendEmail(
+      user.email,
+      "Payment Successful ✅",
+      `
+    <h2>Payment Confirmed</h2>
+    <p>Your payment for <b>${auction.title}</b> was successful.</p>
+    <p>Order will be processed soon.</p>
+  `,
+    );
 
     res.status(200).json({
       success: true,
