@@ -1,7 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { Login } from "../pages/auth/Login";
-import { SignUp } from "../pages/auth/SignUp";
 
 import { UserLayout } from "../components/layout/UserLayout";
 
@@ -12,12 +11,13 @@ import { CreateAuction } from "../pages/user/CreateAuction";
 import { DashBoard } from "../pages/user/DashBoard";
 import { Profile } from "../pages/user/Profile";
 
+import { Register } from "../pages/auth/Register";
 import ProtectedRoute from "../routes/ProtectedRoute";
 
 const router = createBrowserRouter([
   // Public Routes
   { path: "/login", element: <Login /> },
-  { path: "/signup", element: <SignUp /> },
+  { path: "/register", element: <Register /> },
 
   {
     path: "/",

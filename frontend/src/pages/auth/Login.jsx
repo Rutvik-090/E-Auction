@@ -5,7 +5,11 @@ import API from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 
 export const Login = () => {
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -61,7 +65,7 @@ export const Login = () => {
 
         <p className="text-sm text-center mt-4">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-black font-semibold">
+          <Link to="/register" className="text-black font-semibold">
             Sign Up
           </Link>
         </p>

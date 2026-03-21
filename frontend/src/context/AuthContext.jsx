@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -7,12 +7,6 @@ export const AuthProvider = ({ children }) => {
     JSON.parse(localStorage.getItem("user")) || null,
   );
   const [token, setToken] = useState(localStorage.getItem("token"));
-
-  useEffect(() => {
-    if (token) {
-      console.log("token exists");
-    }
-  }, [token]);
 
   const login = (userData, tokenValue) => {
     localStorage.setItem("token", tokenValue);
