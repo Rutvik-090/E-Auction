@@ -30,6 +30,13 @@ const auctionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid"],
+      default: "pending",
+    },
+
+    paymentId: String,
   },
   { timestamps: true },
 );
