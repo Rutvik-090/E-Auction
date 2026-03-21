@@ -1,5 +1,7 @@
 import Auction from "../models/Auction.js";
 import Bid from "../models/Bid.js";
+import User from "../models/User.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 //-------------------
 //Place Bid
@@ -81,6 +83,28 @@ export const placeBid = async (req, res) => {
       amount,
       bidder: req.user.name,
     });
+
+    // inside placeBid()
+
+    if (
+      previousBid &&
+      previousBid.bidder._id.toString() !== req.user._id.toString()
+    ) {
+      const previousUser = await User.findById(previousBid.bidder._id);
+
+      await sendEmail(
+        previousUser.email,
+        "You've been outbid!",
+        `
+      <h2>Outbid Alert 🚨</h2>
+      <p>You have been outbid on <b>${auction.title}</b></p>
+      <p>New highest bid: ₹${amount}</p>
+      <a href="http://localhost:3000/auction/${auction._id}">
+        View Auction
+      </a>
+    `,
+      );
+    }
 
     res.status(200).json({
       success: true,
