@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 
 export const Login = () => {
@@ -10,29 +11,16 @@ export const Login = () => {
   const [error, setError] = useState("");
 
   const onSubmit = async (data) => {
-    const fakeUser = {
-      name: "Vornova",
-      email: data.email,
-      role: "buyer",
-    };
+    try {
+      setError("");
 
-    const fakeToken = "fake-jwt-token";
+      const res = await API.post("/auth/login", data);
 
-    login(fakeUser, fakeToken);
-    navigate("/dashboard");
-    // try {
-    //   setError("");
-
-    //   const res = await axios.post(
-    //     "https://node5.onrender.com/user/login",
-    //     data,
-    //   );
-
-    //   login(res.data.user, res.data.token);
-    //   navigate("/dashboard");
-    // } catch (err) {
-    //   setError(err.response?.data?.message || "Login failed");
-    // }
+      login(res.data.user, res.data.token);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
   };
 
   return (
