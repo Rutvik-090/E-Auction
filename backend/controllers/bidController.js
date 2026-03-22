@@ -1,5 +1,6 @@
 import Auction from "../models/Auction.js";
 import Bid from "../models/Bid.js";
+import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
@@ -39,27 +40,36 @@ export const placeBid = async (req, res) => {
     }
 
     // Validate bid amount
-    if (amount <= auction.currentBid) {
+    if (Number(amount) <= Number(auction.currentBid)) {
       return res.status(400).json({
         success: false,
         message: "Bid must be higher than current bid",
       });
     }
 
-    // Save bid
+    // 1. Find previous highest bid
+    const previousBid = await Bid.findOne({ auction: auctionId })
+      .sort({ amount: -1 })
+      .populate("bidder");
+
+    // 2. Save new bid
     const bid = await Bid.create({
       auction: auctionId,
       bidder: req.user._id,
       amount,
     });
 
-    // Update auction price
+    // 3. Update auction
     auction.currentBid = amount;
     await auction.save();
 
-    const io = req.app.get("io");
+    const io = global.io;
 
-    // Notify previous bidder
+    if (!io) {
+      console.log("❌ IO NOT INITIALIZED");
+    }
+
+    // 4. Notify previous bidder
     if (
       previousBid &&
       previousBid.bidder._id.toString() !== req.user._id.toString()
@@ -70,12 +80,48 @@ export const placeBid = async (req, res) => {
         message: `You have been outbid on ${auction.title}`,
       });
 
-      // Real-time notification
       io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
         message: notification.message,
         auctionId,
       });
+
+      if (io) {
+        io.to(auctionId.toString()).emit("bidUpdated", {
+          auctionId,
+          amount,
+          bidder: req.user.name,
+        });
+      }
+
+      // email
+      const previousUser = await User.findById(previousBid.bidder._id);
+
+      await sendEmail(
+        previousUser.email,
+        "You've been outbid!",
+        `<h2>Outbid Alert 🚨</h2>
+     <p>You have been outbid on <b>${auction.title}</b></p>
+     <p>New highest bid: ₹${amount}</p>`,
+      );
     }
+
+    // // Notify previous bidder
+    // if (
+    //   previousBid &&
+    //   previousBid.bidder._id.toString() !== req.user._id.toString()
+    // ) {
+    //   const notification = await Notification.create({
+    //     user: previousBid.bidder._id,
+    //     auction: auctionId,
+    //     message: `You have been outbid on ${auction.title}`,
+    //   });
+
+    //   // Real-time notification
+    //   io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
+    //     message: notification.message,
+    //     auctionId,
+    //   });
+    // }
 
     // Broadcast new bid to auction room
     io.to(auctionId).emit("bidUpdated", {
@@ -84,27 +130,27 @@ export const placeBid = async (req, res) => {
       bidder: req.user.name,
     });
 
-    // inside placeBid()
+    // // inside placeBid()
 
-    if (
-      previousBid &&
-      previousBid.bidder._id.toString() !== req.user._id.toString()
-    ) {
-      const previousUser = await User.findById(previousBid.bidder._id);
+    // if (
+    //   previousBid &&
+    //   previousBid.bidder._id.toString() !== req.user._id.toString()
+    // ) {
+    //   const previousUser = await User.findById(previousBid.bidder._id);
 
-      await sendEmail(
-        previousUser.email,
-        "You've been outbid!",
-        `
-      <h2>Outbid Alert 🚨</h2>
-      <p>You have been outbid on <b>${auction.title}</b></p>
-      <p>New highest bid: ₹${amount}</p>
-      <a href="http://localhost:3000/auction/${auction._id}">
-        View Auction
-      </a>
-    `,
-      );
-    }
+    //   await sendEmail(
+    //     previousUser.email,
+    //     "You've been outbid!",
+    //     `
+    //   <h2>Outbid Alert 🚨</h2>
+    //   <p>You have been outbid on <b>${auction.title}</b></p>
+    //   <p>New highest bid: ₹${amount}</p>
+    //   <a href="http://localhost:3000/auction/${auction._id}">
+    //     View Auction
+    //   </a>
+    // `,
+    //   );
+    // }
 
     res.status(200).json({
       success: true,

@@ -12,10 +12,6 @@ import userRoutes from "./routes/userRoutes.js";
 import { initializeSocket } from "./socket/socket.js";
 import { startAuctionCron } from "./utils/auctionCron.js";
 
-dotenv.config();
-connectDB();
-startAuctionCron();
-
 // express app
 const app = express();
 
@@ -23,7 +19,11 @@ const app = express();
 const server = http.createServer(app);
 const io = initializeSocket(server);
 
-app.set("io", io);
+global.set = io;
+
+dotenv.config();
+connectDB();
+startAuctionCron();
 
 // middlewares
 app.use(cors());
@@ -44,6 +44,6 @@ app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
