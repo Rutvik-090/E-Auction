@@ -18,9 +18,6 @@ router.get("/", getAllAuctions);
 router.get("/:id", getSingleAuction);
 
 // Seller only
-router.post("/", protect, authorizeRoles("seller"), createAuction);
-router.put("/:id", protect, authorizeRoles("seller"), updateAuction);
-router.delete("/:id", protect, authorizeRoles("seller"), deleteAuction);
 router.post(
   "/",
   protect,
@@ -28,5 +25,7 @@ router.post(
   upload.single("image"),
   createAuction,
 );
+router.put("/:id", protect, authorizeRoles("seller"), updateAuction);
+router.delete("/:id", protect, authorizeRoles("seller"), deleteAuction);
 
 export default router;
