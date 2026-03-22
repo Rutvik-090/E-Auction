@@ -26,7 +26,7 @@ export const AuctionCard = ({ auction }) => {
       </div>
 
       <Link
-        to={`/auction/${auction.id}`}
+        to={`/auction/${auction._id}`}
         className="mt-4 bg-black text-white py-2 rounded-lg text-center hover:opacity-90 transition"
       >
         View Auction

@@ -156,7 +156,7 @@ export const Home = () => {
           </p>
 
           <Link
-            to="/signup"
+            to="/register"
             className="inline-block mt-8 bg-black text-white px-8 py-3 rounded-full font-semibold hover:scale-105 transition duration-300 shadow-md"
           >
             Create Your Account
