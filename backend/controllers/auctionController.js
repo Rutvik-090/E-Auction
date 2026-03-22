@@ -162,7 +162,7 @@ export const updateAuction = async (req, res) => {
     }
 
     //check ownership
-    if (auction.seller.toString !== req.params._id.toString()) {
+    if (auction.seller.toString() !== req.user._id.toString()) {
       return res
         .status(500)
         .json({ success: false, message: "You are not authorized" });
