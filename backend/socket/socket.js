@@ -10,12 +10,14 @@ export const initializeSocket = (server) => {
       socket.join(auctionId);
     });
 
-    socket.on("newBid", ({ auctionId, bid }) => {
-      io.to(auctionId).emit("bidUpdated", bid);
-    });
+    // socket.on("newBid", ({ auctionId, bid }) => {
+    //   io.to(auctionId).emit("bidUpdated", bid);
+    // });
 
     socket.on("disconnect", () => {
       console.log("User disconnected");
     });
   });
+
+  return io;
 };
