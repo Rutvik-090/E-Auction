@@ -4,7 +4,7 @@ import Bid from "../models/Bid.js";
 import User from "../models/User.js";
 import { sendEmail } from "./sendEmail.js";
 
-export const startAuctionCron = () => {
+export const startAuctionCron = (io) => {
   // Runs every minute
   cron.schedule("* * * * *", async () => {
     const now = new Date();
