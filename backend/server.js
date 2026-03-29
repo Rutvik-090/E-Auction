@@ -19,11 +19,12 @@ const app = express();
 const server = http.createServer(app);
 const io = initializeSocket(server);
 
-global.set = io;
+// global.set = io;
+global.io = io;
 
 dotenv.config();
 connectDB();
-startAuctionCron();
+// startAuctionCron();
 
 // middlewares
 app.use(cors());
@@ -46,4 +47,5 @@ const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  startAuctionCron();
 });
