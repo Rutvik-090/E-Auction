@@ -27,23 +27,23 @@ export const startAuctionCron = () => {
 
         const winnerUser = await User.findById(highestBid.bidder._id);
 
-        await sendEmail(
-          winnerUser.email,
-          "🎉 You won the auction!",
-          `
+        if (winnerUser?.email) {
+          await sendEmail(
+            winnerUser.email,
+            "🎉 You won the auction!",
+            `
       <h2>Congratulations 🎉</h2>
       <p>You won the auction: <b>${auction.title}</b></p>
       <p>Final Price: ₹${highestBid.amount}</p>
       <p>Please complete your payment.</p>
     `,
-        );
+          );
+        }
       } else {
         auction.status = "ended";
       }
 
       await auction.save();
-
-      const io = global.io;
 
       io.to(auction._id.toString()).emit("auctionEnded", {
         winner: highestBid?.bidder?.name,
