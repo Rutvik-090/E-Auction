@@ -19,8 +19,13 @@ const app = express();
 const server = http.createServer(app);
 const io = initializeSocket(server);
 
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // global.set = io;
-global.io = io;
+// global.io = io;
 
 dotenv.config();
 connectDB();
@@ -47,5 +52,5 @@ const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  startAuctionCron();
+  startAuctionCron(io);
 });
