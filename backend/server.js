@@ -12,12 +12,18 @@ import userRoutes from "./routes/userRoutes.js";
 import { initializeSocket } from "./socket/socket.js";
 import { startAuctionCron } from "./utils/auctionCron.js";
 
+dotenv.config();
+
 // express app
 const app = express();
 
 // socket.io connection
 const server = http.createServer(app);
 const io = initializeSocket(server);
+
+// middlewares
+app.use(cors());
+app.use(express.json());
 
 app.use((req, res, next) => {
   req.io = io;
@@ -27,13 +33,8 @@ app.use((req, res, next) => {
 // global.set = io;
 // global.io = io;
 
-dotenv.config();
 connectDB();
 // startAuctionCron();
-
-// middlewares
-app.use(cors());
-app.use(express.json());
 
 // Test route
 app.get("/", (req, res) => {
