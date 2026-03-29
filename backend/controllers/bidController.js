@@ -160,7 +160,7 @@ export const placeBid = async (req, res) => {
     const io = req.io;
 
     if (!io) {
-      console.log("❌ IO NOT INITIALIZED");
+      console.log("IO NOT INITIALIZED");
     }
 
     // 5. Notify previous bidder
@@ -174,10 +174,12 @@ export const placeBid = async (req, res) => {
         message: `You have been outbid on ${auction.title}`,
       });
 
-      io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
-        message: notification.message,
-        auctionId,
-      });
+      if (io) {
+        io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
+          message: notification.message,
+          auctionId,
+        });
+      }
 
       const previousUser = await User.findById(previousBid.bidder._id);
 
@@ -191,11 +193,13 @@ export const placeBid = async (req, res) => {
     }
 
     // 6. ALWAYS broadcast new bid
-    io.to(auctionId.toString()).emit("bidUpdated", {
-      auctionId,
-      amount,
-      bidder: req.user.name,
-    });
+    if (io) {
+      io.to(auctionId.toString()).emit("bidUpdated", {
+        auctionId,
+        amount,
+        bidder: req.user.name,
+      });
+    }
 
     res.status(200).json({
       success: true,
