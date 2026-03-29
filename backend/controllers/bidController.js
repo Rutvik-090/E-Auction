@@ -60,50 +60,50 @@ export const placeBid = async (req, res) => {
     });
 
     // 3. Update auction
-    auction.currentBid = amount;
-    await auction.save();
+    // auction.currentBid = amount;
+    // await auction.save();
 
-    const io = global.io;
+    // const io = req.io;
 
-    if (!io) {
-      console.log("❌ IO NOT INITIALIZED");
-    }
+    // if (!io) {
+    //   console.log("❌ IO NOT INITIALIZED");
+    // }
 
-    // 4. Notify previous bidder
-    if (
-      previousBid &&
-      previousBid.bidder._id.toString() !== req.user._id.toString()
-    ) {
-      const notification = await Notification.create({
-        user: previousBid.bidder._id,
-        auction: auctionId,
-        message: `You have been outbid on ${auction.title}`,
-      });
+    // // 4. Notify previous bidder
+    // if (
+    //   previousBid &&
+    //   previousBid.bidder._id.toString() !== req.user._id.toString()
+    // ) {
+    //   const notification = await Notification.create({
+    //     user: previousBid.bidder._id,
+    //     auction: auctionId,
+    //     message: `You have been outbid on ${auction.title}`,
+    //   });
 
-      io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
-        message: notification.message,
-        auctionId,
-      });
+    //   io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
+    //     message: notification.message,
+    //     auctionId,
+    //   });
 
-      if (io) {
-        io.to(auctionId.toString()).emit("bidUpdated", {
-          auctionId,
-          amount,
-          bidder: req.user.name,
-        });
-      }
+    //   if (io) {
+    //     io.to(auctionId.toString()).emit("bidUpdated", {
+    //       auctionId,
+    //       amount,
+    //       bidder: req.user.name,
+    //     });
+    //   }
 
-      // email
-      const previousUser = await User.findById(previousBid.bidder._id);
+    //   // email
+    //   const previousUser = await User.findById(previousBid.bidder._id);
 
-      await sendEmail(
-        previousUser.email,
-        "You've been outbid!",
-        `<h2>Outbid Alert 🚨</h2>
-     <p>You have been outbid on <b>${auction.title}</b></p>
-     <p>New highest bid: ₹${amount}</p>`,
-      );
-    }
+    //   await sendEmail(
+    //     previousUser.email,
+    //     "You've been outbid!",
+    //     `<h2>Outbid Alert 🚨</h2>
+    //  <p>You have been outbid on <b>${auction.title}</b></p>
+    //  <p>New highest bid: ₹${amount}</p>`,
+    //   );
+    // }
 
     // // Notify previous bidder
     // if (
@@ -124,11 +124,11 @@ export const placeBid = async (req, res) => {
     // }
 
     // Broadcast new bid to auction room
-    io.to(auctionId).emit("bidUpdated", {
-      auctionId,
-      amount,
-      bidder: req.user.name,
-    });
+    // io.to(auctionId).emit("bidUpdated", {
+    //   auctionId,
+    //   amount,
+    //   bidder: req.user.name,
+    // });
 
     // // inside placeBid()
 
@@ -151,6 +151,51 @@ export const placeBid = async (req, res) => {
     // `,
     //   );
     // }
+
+    // 3. Update auction
+    auction.currentBid = amount;
+    await auction.save();
+
+    // 4. Get io
+    const io = req.io;
+
+    if (!io) {
+      console.log("❌ IO NOT INITIALIZED");
+    }
+
+    // 5. Notify previous bidder
+    if (
+      previousBid &&
+      previousBid.bidder._id.toString() !== req.user._id.toString()
+    ) {
+      const notification = await Notification.create({
+        user: previousBid.bidder._id,
+        auction: auctionId,
+        message: `You have been outbid on ${auction.title}`,
+      });
+
+      io.to(previousBid.bidder._id.toString()).emit("outbidNotification", {
+        message: notification.message,
+        auctionId,
+      });
+
+      const previousUser = await User.findById(previousBid.bidder._id);
+
+      await sendEmail(
+        previousUser.email,
+        "You've been outbid!",
+        `<h2>Outbid Alert 🚨</h2>
+     <p>You have been outbid on <b>${auction.title}</b></p>
+     <p>New highest bid: ₹${amount}</p>`,
+      );
+    }
+
+    // 6. ALWAYS broadcast new bid
+    io.to(auctionId.toString()).emit("bidUpdated", {
+      auctionId,
+      amount,
+      bidder: req.user.name,
+    });
 
     res.status(200).json({
       success: true,
