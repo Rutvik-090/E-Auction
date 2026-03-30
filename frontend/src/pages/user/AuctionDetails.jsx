@@ -254,6 +254,65 @@ export const AuctionDetails = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  //  LOAD RAZORPAY SCRIPT
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  //  HANDLE PAYMENT
+  const handlePayment = async () => {
+    const res = await loadRazorpay();
+
+    if (!res) {
+      return toast.error("Razorpay SDK failed to load");
+    }
+
+    try {
+      const { data } = await API.post("/payment/create-order", {
+        auctionId: id,
+      });
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY,
+        amount: data.order.amount,
+        currency: "INR",
+        name: "E-Auction",
+        description: "Auction Payment",
+        order_id: data.order.id,
+
+        handler: async function (response) {
+          await API.post("/payment/verify", {
+            ...response,
+            auctionId: id,
+          });
+
+          toast.success("Payment successful 🎉");
+          setShowWinnerPopup(false);
+        },
+
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+
+        theme: {
+          color: "#000",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Payment failed");
+    }
+  };
+
   // Fetch auction
   useEffect(() => {
     if (!id) return;
