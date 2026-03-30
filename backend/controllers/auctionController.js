@@ -51,7 +51,10 @@ export const getAllAuctions = async (req, res) => {
   try {
     let queryObj = {};
 
-    //  Keyword Search
+    // Hide expired auctions
+    queryObj.endTime = { $gt: new Date() };
+
+    // 🔍 Keyword Search
     if (req.query.keyword) {
       queryObj.$or = [
         { title: { $regex: req.query.keyword, $options: "i" } },
@@ -59,7 +62,7 @@ export const getAllAuctions = async (req, res) => {
       ];
     }
 
-    //  Price Filter
+    // Price Filter
     if (req.query.minPrice || req.query.maxPrice) {
       queryObj.currentBid = {};
 
@@ -72,22 +75,7 @@ export const getAllAuctions = async (req, res) => {
       }
     }
 
-    //  Status Filter
-    if (req.query.status) {
-      queryObj.status = req.query.status;
-    }
-
-    //  Seller Filter
-    if (req.query.seller) {
-      queryObj.seller = req.query.seller;
-    }
-
-    //  Pagination
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 6;
-    const skip = (page - 1) * limit;
-
-    //  Sorting
+    // Sorting
     let sortOption = {};
 
     if (req.query.sort === "price_asc") {
@@ -97,29 +85,19 @@ export const getAllAuctions = async (req, res) => {
     } else if (req.query.sort === "ending_soon") {
       sortOption.endTime = 1;
     } else {
-      sortOption.createdAt = -1; // default latest
+      sortOption.createdAt = -1;
     }
 
-    // 🔍 Execute Query
     const auctions = await Auction.find(queryObj)
       .populate("seller", "name")
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Auction.countDocuments(queryObj);
+      .sort(sortOption);
 
     res.status(200).json({
       success: true,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
       auctions,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
